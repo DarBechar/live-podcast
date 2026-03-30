@@ -104,13 +104,7 @@ exports.handler = async (event) => {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({
-        error: "Internal server error",
-        debug: err.message,
-        hasApiKey: !!process.env.AIRTABLE_API_KEY,
-        hasBaseId: !!process.env.AIRTABLE_BASE_ID,
-        hasActivityId: !!process.env.ACTIVITY_RECORD_ID,
-      }),
+      body: JSON.stringify({ error: "Internal server error" }),
     };
   }
 };
