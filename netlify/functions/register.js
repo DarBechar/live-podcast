@@ -48,10 +48,13 @@ exports.handler = async (event) => {
     const baseId = process.env.AIRTABLE_BASE_ID;
     const activityRecId = process.env.ACTIVITY_RECORD_ID;
 
-    // 1. Search for existing participant by phone number
+    // Normalize phone: strip everything except digits
+    const phoneDigits = phone.replace(/\D/g, "");
+
+    // 1. Search for existing participant by phone number (digits only)
     const searchResult = await airtableRequest(baseId, "Participants", {
       params: {
-        filterByFormula: `{PhoneNumber}="${phone}"`,
+        filterByFormula: `SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE({PhoneNumber}," ",""),"-",""),"(",""),")","")="${phoneDigits}"`,
         maxRecords: "1",
       },
     });
