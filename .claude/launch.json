@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "live-podcast",
+      "runtimeExecutable": "ruby",
+      "runtimeArgs": ["/Users/elinorsamara/Documents/Claude Projects/Live_Podcast/server.rb"],
+      "port": 8080
+    }
+  ]
+}

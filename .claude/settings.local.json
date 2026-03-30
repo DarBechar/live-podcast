@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(open \"/Users/elinorsamara/Documents/Claude Projects/Live_Podcast/index.html\")",
+      "Bash(gh api:*)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills/frontend-design)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills/gestor-autonomos)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills/landing-page-mastery)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills/vercel-react-best-practices)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills/gestor-autonomos/references)",
+      "Bash(curl -s https://api.github.com/repos/alexdcd/Mafia-Claude-Skills/contents/skills/gestor-autonomos/scripts)"
+    ]
+  }
+}
