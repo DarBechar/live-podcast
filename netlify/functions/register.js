@@ -84,7 +84,7 @@ exports.handler = async (event) => {
         fields: {
           Activity: [activityRecId],
           Participant: [participantRecId],
-          "Attendance Status": "נרשם",
+          "Attendance Status": "Confirmed",
         },
       },
     });
