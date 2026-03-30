@@ -1,3 +1,24 @@
+const AIRTABLE_BASE_URL = `https://api.airtable.com/v0`;
+
+async function airtableRequest(baseId, tableName, options = {}) {
+  const { method = "GET", body, params } = options;
+  let url = `${AIRTABLE_BASE_URL}/${baseId}/${encodeURIComponent(tableName)}`;
+  if (params) url += `?${new URLSearchParams(params)}`;
+
+  const res = await fetch(url, {
+    method,
+    headers: {
+      Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    ...(body && { body: JSON.stringify(body) }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(JSON.stringify(data));
+  return data;
+}
+
 exports.handler = async (event) => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
@@ -24,51 +45,62 @@ exports.handler = async (event) => {
       };
     }
 
-    const airtableRes = await fetch(
-      `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${encodeURIComponent(process.env.AIRTABLE_TABLE_NAME)}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.AIRTABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fields: {
-            "שם פרטי": firstName,
-            "שם משפחה": lastName,
-            "טלפון": phone,
-            "מייל לקוח זמני": email,
-            "מזהה הטופס": "podcast-live-2025",
-            "קבלת דיוור": newsletter ? "כן" : "לא",
-            "קטגוריות התעניינות": ["recHw0isyXJtwTnSK"],
-            "סטטוס תלמידות למתעניין": isStudent ? "תלמיד פעיל" : "לא תלמיד",
-          },
-        }),
-      }
-    );
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const activityRecId = process.env.ACTIVITY_RECORD_ID;
 
-    if (!airtableRes.ok) {
-      const err = await airtableRes.json();
-      console.error("Airtable error:", JSON.stringify(err));
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: "Failed to save registration" }),
-      };
+    // 1. Search for existing participant by phone number
+    const searchResult = await airtableRequest(baseId, "Participants", {
+      params: {
+        filterByFormula: `{PhoneNumber}="${phone}"`,
+        maxRecords: "1",
+      },
+    });
+
+    let participantRecId;
+
+    if (searchResult.records && searchResult.records.length > 0) {
+      // 2a. Participant exists — use their Record ID
+      participantRecId = searchResult.records[0].id;
+    } else {
+      // 2b. Participant doesn't exist — create new
+      const newParticipant = await airtableRequest(baseId, "Participants", {
+        method: "POST",
+        body: {
+          fields: {
+            FirstName: firstName,
+            LastName: lastName,
+            PhoneNumber: phone,
+            Email: email,
+          },
+        },
+      });
+      participantRecId = newParticipant.id;
     }
 
-    const record = await airtableRes.json();
+    // 3. Create ActivityParticipants record (link participant to activity)
+    const activityParticipant = await airtableRequest(baseId, "ActivityParticipants", {
+      method: "POST",
+      body: {
+        fields: {
+          Activity: [activityRecId],
+          Participant: [participantRecId],
+          "Attendance Status": "נרשם",
+        },
+      },
+    });
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        recId: record.id,
+        participantId: participantRecId,
+        activityParticipantId: activityParticipant.id,
+        isNewParticipant: searchResult.records.length === 0,
       }),
     };
   } catch (err) {
-    console.error("Function error:", err);
+    console.error("Function error:", err.message);
     return {
       statusCode: 500,
       headers,
