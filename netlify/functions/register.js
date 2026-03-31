@@ -114,20 +114,24 @@ exports.handler = async (event) => {
       PhoneNumber: phone,
       Email: email,
     };
-    if (isActiveStudent && learningPath) {
-      participantFields["נתיב לימודים"] = learningPath;
+    // Only set learning path if it's a valid option in the Participants table
+    const validPaths = ["הלכה למעשה", "מימוש מועצם", "מרכז הבוגרים", "מתפילה ליצירה", "קבלה והנחלה", "קפיצת הדרך", "קשרים חיים", "תהודה והשראה"];
+    const validLearningPath = learningPath && validPaths.includes(learningPath) ? learningPath : null;
+
+    if (isActiveStudent && validLearningPath) {
+      participantFields["נתיב לימודים"] = validLearningPath;
     }
 
     if (searchResult.records && searchResult.records.length > 0) {
       participantRecId = searchResult.records[0].id;
       // Update learning path if found in CRM
-      if (isActiveStudent && learningPath) {
+      if (isActiveStudent && validLearningPath) {
         await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
           method: "PATCH",
           body: {
             records: [{
               id: participantRecId,
-              fields: { "נתיב לימודים": learningPath },
+              fields: { "נתיב לימודים": validLearningPath },
             }],
           },
         });
