@@ -47,7 +47,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { firstName, lastName, phone, email, newsletter, isStudent } = JSON.parse(event.body);
+    const { firstName, lastName, phone, email, newsletter } = JSON.parse(event.body);
 
     if (!firstName || !lastName || !phone || !email) {
       return {
@@ -114,24 +114,20 @@ exports.handler = async (event) => {
       PhoneNumber: phone,
       Email: email,
     };
-    // Only set learning path if it's a valid option in the Participants table
-    const validPaths = ["הלכה למעשה", "מימוש מועצם", "מרכז הבוגרים", "מתפילה ליצירה", "קבלה והנחלה", "קפיצת הדרך", "קשרים חיים", "תהודה והשראה"];
-    const validLearningPath = learningPath && validPaths.includes(learningPath) ? learningPath : null;
-
-    if (isActiveStudent && validLearningPath) {
-      participantFields["נתיב לימודים"] = validLearningPath;
+    if (isActiveStudent && learningPath) {
+      participantFields["נתיב לימודים"] = learningPath;
     }
 
     if (searchResult.records && searchResult.records.length > 0) {
       participantRecId = searchResult.records[0].id;
       // Update learning path if found in CRM
-      if (isActiveStudent && validLearningPath) {
+      if (isActiveStudent && learningPath) {
         await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
           method: "PATCH",
           body: {
             records: [{
               id: participantRecId,
-              fields: { "נתיב לימודים": validLearningPath },
+              fields: { "נתיב לימודים": learningPath },
             }],
           },
         });
@@ -152,6 +148,7 @@ exports.handler = async (event) => {
           Activity: [activityRecId],
           Participant: [participantRecId],
           "Attendance Status": "Confirmed",
+          "אישור קבלת דיוור": newsletter ? true : false,
           Notes: `סטטוס CRM: ${crmStudentStatus}`,
         },
       },

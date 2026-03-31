@@ -1320,16 +1320,6 @@
                     </div>
 
                     <div>
-                        <label class="checkbox-group" for="isStudent">
-                            <input type="checkbox" id="isStudent" name="isStudent">
-                            <span class="checkbox-custom">
-                                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                            </span>
-                            <span class="checkbox-label">אני תלמיד/ה במרכז לוהאריה</span>
-                        </label>
-                    </div>
-
-                    <div>
                         <label class="checkbox-group" for="newsletter">
                             <input type="checkbox" id="newsletter" name="newsletter">
                             <span class="checkbox-custom">
@@ -1432,7 +1422,6 @@
             phone: document.getElementById('phone').value.trim(),
             email: document.getElementById('email').value.trim(),
             newsletter: document.getElementById('newsletter').checked,
-            isStudent: document.getElementById('isStudent').checked,
         };
 
         try {
