@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>נרשמת בהצלחה | פודקאסט לייב</title>
+    <style>
+        @font-face {
+            font-family: 'GreycliffHebrew';
+            src: url('Fonts/greycliffhebrewcf-regular.otf') format('opentype');
+            font-weight: 400; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'GreycliffHebrew';
+            src: url('Fonts/GreycliffHebrewCF-Medium.woff') format('woff'),
+                 url('Fonts/greycliffhebrewcf-medium.otf') format('opentype');
+            font-weight: 500; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'GreycliffHebrew';
+            src: url('Fonts/greycliffhebrewcf-bold.otf') format('opentype');
+            font-weight: 700; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'GreycliffHebrew';
+            src: url('Fonts/greycliffhebrewcf-extrabold.otf') format('opentype');
+            font-weight: 800; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'GreycliffHebrew';
+            src: url('Fonts/greycliffhebrewcf-light.otf') format('opentype');
+            font-weight: 300; font-style: normal; font-display: swap;
+        }
+    </style>
+    <style>
+        :root {
+            --periwinkle: #7885FA;
+            --periwinkle-soft: #a5aefc;
+            --periwinkle-deep: #5a68f5;
+            --periwinkle-pale: #EDEFFD;
+            --bg: #FAF6F0;
+            --white: #FFFFFF;
+            --dark: #1A1208;
+            --text: #2A1E12;
+            --text-muted: #7A6858;
+            --brown: #BA7A69;
+            --brown-light: #d4a090;
+            --border: rgba(30, 22, 16, 0.09);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'GreycliffHebrew', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+            padding: 40px 24px;
+        }
+
+        .thank-you-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 56px 48px;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(30, 22, 16, 0.08);
+            opacity: 0;
+            animation: cardIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards;
+        }
+
+        @keyframes cardIn {
+            0% { opacity: 0; transform: translateY(30px) scale(0.97); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .success-icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--periwinkle-pale), rgba(120, 133, 250, 0.25));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            box-shadow: 0 8px 28px rgba(120, 133, 250, 0.2);
+            opacity: 0;
+            animation: iconPop 0.5s ease-out 0.6s forwards;
+        }
+
+        @keyframes iconPop {
+            0% { opacity: 0; transform: scale(0.5); }
+            60% { transform: scale(1.15); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon svg {
+            width: 36px; height: 36px;
+            stroke: var(--periwinkle);
+            fill: none;
+            stroke-width: 2.5;
+        }
+
+        h1 {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 0.8s forwards;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 32px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 0.95s forwards;
+        }
+
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 1.1s forwards;
+        }
+
+        .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        .detail-row svg {
+            width: 20px; height: 20px;
+            stroke: var(--periwinkle);
+            fill: none;
+            stroke-width: 1.5;
+            flex-shrink: 0;
+        }
+
+        .detail-row strong {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .divider {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(to left, var(--periwinkle-soft), transparent);
+            margin: 0 auto 24px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 1.2s forwards;
+        }
+
+        .closing {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--brown);
+            margin-bottom: 36px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 1.3s forwards;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 1.45s forwards;
+        }
+
+        .btn-register-another {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--periwinkle);
+            color: var(--white);
+            text-decoration: none;
+            padding: 16px 36px;
+            border-radius: 60px;
+            font-family: 'GreycliffHebrew', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 20px rgba(120, 133, 250, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-register-another:hover {
+            background: var(--periwinkle-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(120, 133, 250, 0.4);
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 12px 24px;
+            font-family: 'GreycliffHebrew', sans-serif;
+            font-size: 15px;
+            font-weight: 400;
+            transition: color 0.3s;
+        }
+
+        .btn-home:hover {
+            color: var(--periwinkle);
+        }
+
+        .logo {
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeUp 0.6s ease-out 1.6s forwards;
+        }
+
+        .logo img {
+            height: 28px;
+            filter: brightness(0) opacity(0.4);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .thank-you-card {
+                padding: 40px 28px;
+            }
+
+            h1 { font-size: 28px; }
+
+            .subtitle { font-size: 16px; }
+
+            .detail-row { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="thank-you-card">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+
+        <h1>מקומך שמור!</h1>
+
+        <p class="subtitle">נרשמת בהצלחה לפודקאסט לייב<br>״האומץ לספר סיפור חדש״</p>
+
+        <div class="event-details">
+            <div class="detail-row">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span><strong>יום שני, 6.4.25</strong> | 19:30</span>
+            </div>
+            <div class="detail-row">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>כשעה וחצי</span>
+            </div>
+            <div class="detail-row">
+                <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span>לינק להצטרפות יישלח למייל שלך לפני האירוע</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="closing">נתראה שם!</p>
+
+        <div class="actions">
+            <a href="/#register" class="btn-register-another">רישום משתתף/ת נוסף/ת</a>
+            <a href="/" class="btn-home">חזרה לעמוד הראשי</a>
+        </div>
+    </div>
+
+    <div class="logo">
+        <img src="Louharya-logo-H2_Black.png" alt="Louharya">
+    </div>
+
+</body>
+</html>

@@ -1434,10 +1434,7 @@
             const result = await res.json();
 
             if (res.ok && result.success) {
-                this.style.display = 'none';
-                document.querySelector('.form-micro').style.display = 'none';
-                document.getElementById('formSuccess').classList.add('show');
-                mobileSticky.classList.remove('visible');
+                window.location.href = '/thank-you.html';
             } else {
                 btn.textContent = 'שמרו לי מקום';
                 btn.disabled = false;
