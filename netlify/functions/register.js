@@ -173,7 +173,7 @@ exports.handler = async (event) => {
     const smooveListId = isActiveStudent ? "1126991" : "1126992";
 
     try {
-      const smooveRes = await fetch("https://rest.smoove.io/v1/Contacts", {
+      const smooveRes = await fetch("https://rest.smoove.io/v1/Contacts?updateIfExists=true", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${smooveApiKey}`,
@@ -189,7 +189,7 @@ exports.handler = async (event) => {
       });
       if (!smooveRes.ok) {
         const smooveErrBody = await smooveRes.text();
-        console.error("Smoove error:", smooveRes.status, smooveErrBody, "hasKey:", !!smooveApiKey);
+        console.error("Smoove error:", smooveRes.status, smooveErrBody);
       }
     } catch (smooveErr) {
       console.error("Smoove error:", smooveErr.message, "hasKey:", !!smooveApiKey);
