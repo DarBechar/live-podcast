@@ -3,7 +3,17 @@ const AIRTABLE_BASE_URL = `https://api.airtable.com/v0`;
 async function airtableRequest(apiKey, baseId, tableName, options = {}) {
   const { method = "GET", body, params } = options;
   let url = `${AIRTABLE_BASE_URL}/${baseId}/${encodeURIComponent(tableName)}`;
-  if (params) url += `?${new URLSearchParams(params)}`;
+  if (params) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (Array.isArray(value)) {
+        value.forEach((v) => searchParams.append(key, v));
+      } else {
+        searchParams.append(key, value);
+      }
+    }
+    url += `?${searchParams}`;
+  }
 
   const res = await fetch(url, {
     method,
@@ -60,6 +70,7 @@ exports.handler = async (event) => {
     // ====== STEP 1: Check CRM for active student status ======
     let isActiveStudent = false;
     let crmStudentStatus = "לא תלמיד";
+    let learningPath = null;
 
     try {
       // Search by phone OR email in CRM
@@ -67,13 +78,20 @@ exports.handler = async (event) => {
         params: {
           filterByFormula: `OR({טלפון פורמט נקי}="${phoneDigits}",LOWER({מייל})="${emailLower}")`,
           maxRecords: "1",
-          "fields[]": "סטטוס תלמידות",
+          "fields[]": ["סטטוס תלמידות", "נתיב לימוד אחרון"],
         },
       });
 
       if (crmSearch.records && crmSearch.records.length > 0) {
-        crmStudentStatus = crmSearch.records[0].fields["סטטוס תלמידות"] || "לא תלמיד";
+        const fields = crmSearch.records[0].fields;
+        crmStudentStatus = fields["סטטוס תלמידות"] || "לא תלמיד";
         isActiveStudent = ACTIVE_STATUSES.includes(crmStudentStatus);
+
+        // Get last learning path (multipleLookupValues returns an array)
+        const paths = fields["נתיב לימוד אחרון"];
+        if (Array.isArray(paths) && paths.length > 0) {
+          learningPath = paths[0];
+        }
       }
     } catch (crmErr) {
       // CRM check failed — continue without it, default to not a student
@@ -90,19 +108,34 @@ exports.handler = async (event) => {
 
     let participantRecId;
 
+    const participantFields = {
+      FirstName: firstName,
+      LastName: lastName,
+      PhoneNumber: phone,
+      Email: email,
+    };
+    if (isActiveStudent && learningPath) {
+      participantFields["נתיב לימודים"] = learningPath;
+    }
+
     if (searchResult.records && searchResult.records.length > 0) {
       participantRecId = searchResult.records[0].id;
+      // Update learning path if found in CRM
+      if (isActiveStudent && learningPath) {
+        await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
+          method: "PATCH",
+          body: {
+            records: [{
+              id: participantRecId,
+              fields: { "נתיב לימודים": learningPath },
+            }],
+          },
+        });
+      }
     } else {
       const newParticipant = await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
         method: "POST",
-        body: {
-          fields: {
-            FirstName: firstName,
-            LastName: lastName,
-            PhoneNumber: phone,
-            Email: email,
-          },
-        },
+        body: { fields: participantFields },
       });
       participantRecId = newParticipant.id;
     }
