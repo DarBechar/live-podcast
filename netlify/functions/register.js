@@ -168,6 +168,29 @@ exports.handler = async (event) => {
       },
     });
 
+    // ====== STEP 4: Add to Smoove mailing list ======
+    const smooveApiKey = process.env.SMOOVE_API_KEY;
+    const smooveListId = isActiveStudent ? "1126991" : "1126992";
+
+    try {
+      await fetch("https://rest.smoove.io/v1/Contacts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${smooveApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+          cellPhone: phone,
+          lists_ToSubscribe: [parseInt(smooveListId)],
+        }),
+      });
+    } catch (smooveErr) {
+      console.error("Smoove error:", smooveErr.message);
+    }
+
     return {
       statusCode: 200,
       headers,
@@ -178,6 +201,7 @@ exports.handler = async (event) => {
         isNewParticipant: searchResult.records.length === 0,
         isActiveStudent,
         crmStudentStatus,
+        smooveList: smooveListId,
       }),
     };
   } catch (err) {
