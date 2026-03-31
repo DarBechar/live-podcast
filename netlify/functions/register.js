@@ -114,30 +114,44 @@ exports.handler = async (event) => {
       PhoneNumber: phone,
       Email: email,
     };
-    if (isActiveStudent && learningPath) {
-      participantFields["נתיב לימודים"] = learningPath;
-    }
-
     if (searchResult.records && searchResult.records.length > 0) {
       participantRecId = searchResult.records[0].id;
-      // Update learning path if found in CRM
+      // Try to update learning path if found in CRM
       if (isActiveStudent && learningPath) {
-        await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
-          method: "PATCH",
-          body: {
-            records: [{
-              id: participantRecId,
-              fields: { "נתיב לימודים": learningPath },
-            }],
-          },
-        });
+        try {
+          await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
+            method: "PATCH",
+            body: {
+              records: [{
+                id: participantRecId,
+                fields: { "נתיב לימודים": learningPath },
+              }],
+            },
+          });
+        } catch (pathErr) {
+          console.error("Learning path update failed:", pathErr.message);
+        }
       }
     } else {
-      const newParticipant = await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
-        method: "POST",
-        body: { fields: participantFields },
-      });
-      participantRecId = newParticipant.id;
+      // Try with learning path first, fallback without it
+      if (isActiveStudent && learningPath) {
+        participantFields["נתיב לימודים"] = learningPath;
+      }
+      try {
+        const newParticipant = await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
+          method: "POST",
+          body: { fields: participantFields },
+        });
+        participantRecId = newParticipant.id;
+      } catch (createErr) {
+        // If failed due to learning path, retry without it
+        delete participantFields["נתיב לימודים"];
+        const newParticipant = await airtableRequest(eventsApiKey, eventsBaseId, "Participants", {
+          method: "POST",
+          body: { fields: participantFields },
+        });
+        participantRecId = newParticipant.id;
+      }
     }
 
     // ====== STEP 3: Create ActivityParticipants link ======
