@@ -29,7 +29,12 @@ async function airtableRequest(apiKey, baseId, tableName, options = {}) {
   return data;
 }
 
-const ACTIVE_STATUSES = ["תלמיד פעיל", "תלמיד במעבר", "פעיל מועדון"];
+const ACTIVE_STATUSES = ["תלמיד פעיל", "תלמיד במעבר", "פעיל מועדון", "תלמיד לשעבר"];
+
+const LEARNING_PATH_MAP = {
+  "מודול 3- קשרים חיים": "קשרים חיים",
+  "מודול 2 - השראה": "תהודה והשראה",
+};
 
 exports.handler = async (event) => {
   const headers = {
@@ -72,30 +77,40 @@ exports.handler = async (event) => {
     let crmStudentStatus = "לא תלמיד";
     let learningPath = null;
 
-    try {
-      // Search by phone OR email in CRM
-      const crmSearch = await airtableRequest(crmApiKey, crmBaseId, "לקוחות", {
-        params: {
-          filterByFormula: `OR({טלפון פורמט נקי}="${phoneDigits}",LOWER({מייל})="${emailLower}")`,
-          maxRecords: "1",
-          "fields[]": ["סטטוס תלמידות", "נתיב לימוד אחרון"],
-        },
-      });
+    const firstNameNorm = firstName.trim().toLowerCase();
+    const lastNameNorm = lastName.trim().toLowerCase();
 
-      if (crmSearch.records && crmSearch.records.length > 0) {
-        const fields = crmSearch.records[0].fields;
-        crmStudentStatus = fields["סטטוס תלמידות"] || "לא תלמיד";
-        isActiveStudent = ACTIVE_STATUSES.includes(crmStudentStatus);
+    const crmStrategies = [
+      `OR({טלפון פורמט נקי}="${phoneDigits}",LOWER({מייל})="${emailLower}")`,
+      `AND(LOWER({מייל})="${emailLower}",LOWER({שם})="${firstNameNorm}",LOWER({שם משפחה})="${lastNameNorm}")`,
+      `AND({טלפון פורמט נקי}="${phoneDigits}",LOWER({שם})="${firstNameNorm}",LOWER({שם משפחה})="${lastNameNorm}")`,
+      `AND(LOWER({שם})="${firstNameNorm}",LOWER({שם משפחה})="${lastNameNorm}")`,
+    ];
 
-        // Get last learning path (multipleLookupValues returns an array)
-        const paths = fields["נתיב לימוד אחרון"];
-        if (Array.isArray(paths) && paths.length > 0) {
-          learningPath = paths[0];
+    for (const formula of crmStrategies) {
+      try {
+        const crmSearch = await airtableRequest(crmApiKey, crmBaseId, "לקוחות", {
+          params: {
+            filterByFormula: formula,
+            maxRecords: "1",
+            "fields[]": ["סטטוס תלמידות", "נתיב לימוד אחרון"],
+          },
+        });
+
+        if (crmSearch.records && crmSearch.records.length > 0) {
+          const fields = crmSearch.records[0].fields;
+          crmStudentStatus = fields["סטטוס תלמידות"] || "לא תלמיד";
+          isActiveStudent = ACTIVE_STATUSES.includes(crmStudentStatus);
+
+          const paths = fields["נתיב לימוד אחרון"];
+          if (Array.isArray(paths) && paths.length > 0) {
+            learningPath = LEARNING_PATH_MAP[paths[0]] || paths[0];
+          }
+          break;
         }
+      } catch (crmErr) {
+        console.error("CRM search failed:", crmErr.message);
       }
-    } catch (crmErr) {
-      // CRM check failed — continue without it, default to not a student
-      console.error("CRM check failed:", crmErr.message);
     }
 
     // ====== STEP 2: Search/create participant in events base ======
