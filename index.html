@@ -1416,12 +1416,16 @@
         btn.textContent = 'שולח...';
         btn.disabled = true;
 
+        const urlParams = new URLSearchParams(window.location.search);
         const data = {
             firstName: document.getElementById('firstName').value.trim(),
             lastName: document.getElementById('lastName').value.trim(),
             phone: document.getElementById('phone').value.trim(),
             email: document.getElementById('email').value.trim(),
             newsletter: document.getElementById('newsletter').checked,
+            utm_source: urlParams.get('utm_source') || '',
+            utm_medium: urlParams.get('utm_medium') || '',
+            utm_campaign: urlParams.get('utm_campaign') || '',
         };
 
         try {

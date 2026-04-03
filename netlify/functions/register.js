@@ -47,7 +47,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { firstName, lastName, phone, email, newsletter } = JSON.parse(event.body);
+    const { firstName, lastName, phone, email, newsletter, utm_source, utm_medium, utm_campaign } = JSON.parse(event.body);
 
     if (!firstName || !lastName || !phone || !email) {
       return {
@@ -164,6 +164,9 @@ exports.handler = async (event) => {
           "Attendance Status": "Confirmed",
           "אישור קבלת דיוור": newsletter ? true : false,
           Notes: `סטטוס CRM: ${crmStudentStatus}`,
+          ...(utm_source && { "UTM Source": utm_source }),
+          ...(utm_medium && { "UTM Medium": utm_medium }),
+          ...(utm_campaign && { "UTM Campaign": utm_campaign }),
         },
       },
     });
