@@ -90,8 +90,8 @@ exports.handler = async (event) => {
     const allParticipantIds = [...new Set(activityAP.flatMap((r) => r.fields.Participant || []))];
     const participantMap = {};
 
-    for (let i = 0; i < allParticipantIds.length; i += 10) {
-      const batch = allParticipantIds.slice(i, i + 10);
+    for (let i = 0; i < allParticipantIds.length; i += 100) {
+      const batch = allParticipantIds.slice(i, i + 100);
       const formula = `OR(${batch.map((id) => `RECORD_ID()="${id}"`).join(",")})`;
       const participants = await airtableRequest(apiKey, baseId, "Participants", {
         params: {
