@@ -1,2 +1,11 @@
 .env
 node_modules/
+
+# Local Netlify folder
+.netlify
+
+# Screenshots & Playwright
+*.png
+!Louharya-logo-H2_Black.png
+.playwright-mcp/
+deno.lock

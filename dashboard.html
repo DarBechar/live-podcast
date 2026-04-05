@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>דשבורד הרשמות — לוהאריה</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    @font-face {
+      font-family: 'GreycliffHebrew';
+      src: url('Fonts/GreycliffHebrewCF-Medium.woff') format('woff');
+      font-weight: 500;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'GreycliffHebrew';
+      src: url('Fonts/greycliffhebrewcf-bold.otf') format('opentype');
+      font-weight: 700;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'GreycliffHebrew';
+      src: url('Fonts/greycliffhebrewcf-heavy.otf') format('opentype');
+      font-weight: 900;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'GreycliffHebrew';
+      src: url('Fonts/greycliffhebrewcf-regular.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+    }
+    @font-face {
+      font-family: 'GreycliffHebrew';
+      src: url('Fonts/greycliffhebrewcf-light.otf') format('opentype');
+      font-weight: 300;
+      font-style: normal;
+    }
+
+    :root {
+      --indigo: #7885FA;
+      --indigo-light: #a5aefc;
+      --indigo-dark: #5a68f5;
+      --indigo-glow: rgba(120, 133, 250, 0.15);
+      --terra: #BA7A69;
+      --terra-light: #d4a090;
+      --terra-glow: rgba(186, 122, 105, 0.15);
+      --cream: #FAF6F0;
+      --cream-dark: #f0ebe3;
+      --text: #2A1E12;
+      --text-secondary: #6b5d50;
+      --text-muted: #9a8d82;
+      --surface: rgba(255, 255, 255, 0.7);
+      --surface-solid: #ffffff;
+      --border: rgba(42, 30, 18, 0.08);
+      --shadow-sm: 0 1px 3px rgba(42, 30, 18, 0.04);
+      --shadow-md: 0 4px 16px rgba(42, 30, 18, 0.06);
+      --shadow-lg: 0 8px 32px rgba(42, 30, 18, 0.08);
+      --shadow-glow: 0 0 40px rgba(120, 133, 250, 0.12);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'GreycliffHebrew', 'Segoe UI', Tahoma, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 400px; height: 400px; background: var(--indigo); top: -100px; right: -100px; }
+    .orb-2 { width: 350px; height: 350px; background: var(--terra); bottom: -80px; left: -80px; }
+    .orb-3 { width: 250px; height: 250px; background: var(--indigo-light); top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+    /* ==================== LOGIN ==================== */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      background: var(--cream);
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .login-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .login-card {
+      background: var(--surface-solid);
+      border-radius: var(--radius);
+      padding: 48px 40px;
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+      position: relative;
+      z-index: 1;
+      border: 1px solid var(--border);
+    }
+    .login-card img { height: 40px; margin-bottom: 28px; opacity: 0.85; }
+    .login-card h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+    .login-card p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 28px; }
+    .login-input-wrap { position: relative; margin-bottom: 16px; }
+    .login-input-wrap input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--cream);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    .login-input-wrap input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-glow); }
+    .login-input-wrap input.error { border-color: #e05a4a; box-shadow: 0 0 0 3px rgba(224, 90, 74, 0.12); }
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+    .login-btn:hover { background: var(--indigo-dark); box-shadow: var(--shadow-md); }
+    .login-btn:active { transform: scale(0.98); }
+    .login-error { color: #e05a4a; font-size: 0.82rem; margin-top: 12px; min-height: 1.2em; }
+
+    /* ==================== DASHBOARD ==================== */
+    .dashboard {
+      display: none;
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 28px 60px;
+    }
+    .dashboard.visible { display: block; }
+
+    .dash-header {
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dash-header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .dash-header-right { display: flex; align-items: center; gap: 16px; }
+    .dash-header img { height: 32px; opacity: 0.8; }
+    .dash-header h1 { font-size: 1.4rem; font-weight: 700; }
+    .dash-header-left { display: flex; align-items: center; gap: 14px; }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-family: inherit;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { border-color: var(--indigo); color: var(--indigo); }
+    .action-btn svg { width: 14px; height: 14px; }
+    .action-btn.spinning svg { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .last-updated { font-size: 0.78rem; color: var(--text-muted); }
+    .auto-refresh-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .countdown {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--indigo-glow);
+      color: var(--indigo-dark);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.72rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .countdown .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--indigo);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ==================== KPI CARDS ==================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .kpi-card:nth-child(1)::before { background: var(--indigo); }
+    .kpi-card:nth-child(2)::before { background: #5bb98c; }
+    .kpi-card:nth-child(3)::before { background: var(--terra); }
+    .kpi-card:nth-child(4)::before { background: var(--indigo-light); }
+    .kpi-label { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; margin-bottom: 8px; }
+    .kpi-value { font-size: 2.4rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+    .kpi-card:nth-child(1) .kpi-value { color: var(--indigo); }
+    .kpi-card:nth-child(2) .kpi-value { color: #5bb98c; }
+    .kpi-card:nth-child(3) .kpi-value { color: var(--terra); }
+    .kpi-card:nth-child(4) .kpi-value { color: var(--indigo-dark); }
+    .kpi-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* ==================== CHART SECTIONS ==================== */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .chart-card {
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .chart-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-card h3 .icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+    .chart-card canvas { width: 100% !important; height: 250px !important; }
+    .chart-card.full-width { grid-column: 1 / -1; }
+    .chart-card.full-width canvas { height: 200px !important; }
+
+    /* ==================== TABLES ==================== */
+    .data-table-wrap { overflow-x: auto; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .data-table th {
+      text-align: right;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--cream); }
+    .utm-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      padding: 2px 10px;
+      background: var(--indigo-glow);
+      color: var(--indigo-dark);
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    /* ==================== REGISTRATIONS TABLE ==================== */
+    .reg-section {
+      background: var(--surface-solid);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .reg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .reg-header h3 { font-size: 0.95rem; font-weight: 700; }
+    .search-input {
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-family: inherit;
+      font-size: 0.85rem;
+      background: var(--cream);
+      color: var(--text);
+      outline: none;
+      width: 260px;
+      max-width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-input:focus { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-glow); }
+    .reg-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .reg-table th {
+      text-align: right;
+      padding: 10px 12px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    .reg-table th:hover { color: var(--indigo); }
+    .reg-table th .sort-arrow { font-size: 0.7rem; margin-right: 4px; opacity: 0.4; }
+    .reg-table th.sorted .sort-arrow { opacity: 1; color: var(--indigo); }
+    .reg-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .reg-table tr:last-child td { border-bottom: none; }
+    .reg-table tr:hover td { background: var(--cream); }
+    .status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-badge.active { background: rgba(91, 185, 140, 0.12); color: #3d8a64; }
+    .status-badge.inactive { background: rgba(186, 122, 105, 0.12); color: var(--terra); }
+
+    /* ==================== LOADING ==================== */
+    .loading-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      gap: 16px;
+    }
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--indigo);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text { font-size: 0.88rem; color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.9rem; }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeInUp 0.5s ease both; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.1s; }
+    .delay-3 { animation-delay: 0.15s; }
+    .delay-4 { animation-delay: 0.2s; }
+    .delay-5 { animation-delay: 0.25s; }
+    .delay-6 { animation-delay: 0.3s; }
+    .delay-7 { animation-delay: 0.35s; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .dashboard { padding: 16px; }
+      .dash-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .dash-header-left { flex-direction: column; align-items: flex-start; }
+      .reg-header { flex-direction: column; align-items: stretch; }
+      .search-input { width: 100%; }
+      .kpi-value { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- LOGIN -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <img src="Louharya-logo-H2_Black.png" alt="לוהאריה">
+      <h2>לספר סיפור חדש</h2>
+      <p>פודקאסט הרשמות</p>
+      <form id="loginForm">
+        <div class="login-input-wrap">
+          <input type="password" id="passwordInput" placeholder="סיסמה" autocomplete="off">
+        </div>
+        <button type="submit" class="login-btn">כניסה</button>
+        <div class="login-error" id="loginError"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <header class="dash-header animate-in">
+      <div class="dash-header-top">
+        <div class="dash-header-right">
+          <img src="Louharya-logo-H2_Black.png" alt="לוהאריה">
+        </div>
+        <div class="dash-header-left">
+        <div class="auto-refresh-info">
+          <span class="last-updated" id="lastUpdated"></span>
+          <span class="countdown" id="countdown"><span class="pulse-dot"></span> <span id="countdownText"></span></span>
+        </div>
+        <button class="action-btn" id="refreshBtn" onclick="loadData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          רענון
+        </button>
+        <button class="action-btn" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          ייצוא CSV
+        </button>
+        </div>
+      </div>
+      <h1>לספר סיפור חדש — פודקאסט הרשמות</h1>
+    </header>
+
+    <div class="loading-overlay" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">טוען נתונים מאיירטייבל...</div>
+    </div>
+
+    <div id="dashContent" style="display:none;">
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card animate-in delay-1">
+          <div class="kpi-label">סה״כ נרשמים</div>
+          <div class="kpi-value" id="kpiTotal">—</div>
+          <div class="kpi-sub">הרשמות לאירוע</div>
+        </div>
+        <div class="kpi-card animate-in delay-2">
+          <div class="kpi-label">תלמידים פעילים</div>
+          <div class="kpi-value" id="kpiActive">—</div>
+          <div class="kpi-sub" id="kpiActiveSub"></div>
+        </div>
+        <div class="kpi-card animate-in delay-3">
+          <div class="kpi-label">לא תלמידים</div>
+          <div class="kpi-value" id="kpiNon">—</div>
+          <div class="kpi-sub" id="kpiNonSub"></div>
+        </div>
+        <div class="kpi-card animate-in delay-4">
+          <div class="kpi-label">אישרו דיוור</div>
+          <div class="kpi-value" id="kpiNewsletter">—</div>
+          <div class="kpi-sub" id="kpiNewsletterSub"></div>
+        </div>
+      </div>
+
+      <!-- Charts: Status + Path -->
+      <div class="charts-grid">
+        <div class="chart-card animate-in delay-3">
+          <h3><span class="icon">📊</span> פילוח לפי סטטוס CRM</h3>
+          <canvas id="statusChart" height="220"></canvas>
+        </div>
+        <div class="chart-card animate-in delay-4">
+          <h3><span class="icon">🎯</span> פילוח לפי נתיב לימודים</h3>
+          <canvas id="pathChart" height="220"></canvas>
+          <div class="empty-state" id="pathEmpty" style="display:none;">אין נתוני נתיב לימודים</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="charts-grid">
+        <div class="chart-card full-width animate-in delay-5">
+          <h3><span class="icon">📈</span> הרשמות לפי זמן</h3>
+          <canvas id="timelineChart" height="100"></canvas>
+        </div>
+      </div>
+
+      <!-- UTM Tables -->
+      <div class="charts-grid">
+        <div class="chart-card animate-in delay-6">
+          <h3><span class="icon">🔗</span> פילוח UTM — Source</h3>
+          <div class="data-table-wrap">
+            <table class="data-table" id="utmSourceTable">
+              <thead><tr><th>Source</th><th>נרשמים</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="empty-state" id="utmSourceEmpty" style="display:none;">אין נתוני UTM</div>
+          </div>
+        </div>
+        <div class="chart-card animate-in delay-6">
+          <h3><span class="icon">📣</span> פילוח UTM — Campaign</h3>
+          <div class="data-table-wrap">
+            <table class="data-table" id="utmCampaignTable">
+              <thead><tr><th>Campaign</th><th>נרשמים</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="empty-state" id="utmCampaignEmpty" style="display:none;">אין נתוני קמפיין</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registrations Table -->
+      <div class="reg-section animate-in delay-7">
+        <div class="reg-header">
+          <h3>📋 רשימת נרשמים</h3>
+          <input type="text" class="search-input" id="searchInput" placeholder="חיפוש לפי שם, טלפון, אימייל..." oninput="filterTable()">
+        </div>
+        <div class="data-table-wrap">
+          <table class="reg-table" id="regTable">
+            <thead>
+              <tr id="regTableHead"></tr>
+            </thead>
+            <tbody id="regTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== STATE ====================
+    let dashboardData = null;
+    let currentSort = { col: 8, asc: false };
+    let chartInstances = {};
+    const ACTIVE_STATUSES = ['תלמיד פעיל', 'תלמיד במעבר', 'פעיל מועדון', 'תלמיד לשעבר'];
+
+    const TABLE_COLUMNS = [
+      { label: '#', key: null },
+      { label: 'שם', key: 'name' },
+      { label: 'טלפון', key: 'phone' },
+      { label: 'אימייל', key: 'email' },
+      { label: 'סטטוס', key: 'status' },
+      { label: 'נתיב', key: 'learningPath' },
+      { label: 'דיוור', key: 'newsletter' },
+      { label: 'UTM', key: 'utmSource' },
+      { label: 'תאריך', key: 'date' },
+    ];
+
+    // Build table header
+    (function buildTableHead() {
+      const headRow = document.getElementById('regTableHead');
+      TABLE_COLUMNS.forEach(function(col, i) {
+        var th = document.createElement('th');
+        th.addEventListener('click', function() { sortTable(i); });
+        var arrow = document.createElement('span');
+        arrow.className = 'sort-arrow';
+        arrow.textContent = '▼';
+        th.appendChild(arrow);
+        th.appendChild(document.createTextNode(col.label));
+        headRow.appendChild(th);
+      });
+    })();
+
+    // ==================== AUTH ====================
+    function getPassword() {
+      return sessionStorage.getItem('dash_password') || '';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var pwd = document.getElementById('passwordInput').value;
+      if (!pwd) return;
+
+      var btn = document.querySelector('.login-btn');
+      btn.textContent = 'מתחבר...';
+      btn.disabled = true;
+
+      try {
+        var res = await fetch('/.netlify/functions/dashboard-data', {
+          headers: { 'X-Dashboard-Password': pwd }
+        });
+
+        if (res.status === 401) {
+          document.getElementById('loginError').textContent = 'סיסמה שגויה';
+          document.getElementById('passwordInput').classList.add('error');
+          btn.textContent = 'כניסה';
+          btn.disabled = false;
+          return;
+        }
+
+        if (!res.ok) throw new Error('Server error');
+
+        sessionStorage.setItem('dash_password', pwd);
+        dashboardData = await res.json();
+
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.add('visible');
+        renderDashboard();
+      } catch (err) {
+        document.getElementById('loginError').textContent = 'שגיאת שרת — נסה שוב';
+        btn.textContent = 'כניסה';
+        btn.disabled = false;
+      }
+    });
+
+    // Auto-login if password in session
+    (async function() {
+      var pwd = getPassword();
+      if (!pwd) return;
+      try {
+        var res = await fetch('/.netlify/functions/dashboard-data', {
+          headers: { 'X-Dashboard-Password': pwd }
+        });
+        if (!res.ok) { sessionStorage.removeItem('dash_password'); return; }
+        dashboardData = await res.json();
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.add('visible');
+        renderDashboard();
+      } catch (_) {}
+    })();
+
+    // ==================== LOAD DATA ====================
+    async function loadData() {
+      var btn = document.getElementById('refreshBtn');
+      btn.classList.add('spinning');
+      try {
+        var res = await fetch('/.netlify/functions/dashboard-data', {
+          headers: { 'X-Dashboard-Password': getPassword() }
+        });
+        if (res.status === 401) { sessionStorage.removeItem('dash_password'); location.reload(); return; }
+        if (!res.ok) throw new Error('Server error');
+        dashboardData = await res.json();
+        renderDashboard();
+      } catch (err) {
+        alert('שגיאה בטעינת נתונים');
+      } finally {
+        btn.classList.remove('spinning');
+      }
+    }
+
+    // ==================== RENDER ====================
+    function renderDashboard() {
+      if (!dashboardData) return;
+      var d = dashboardData;
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('dashContent').style.display = 'block';
+
+      var fetched = new Date(d.fetchedAt);
+      document.getElementById('lastUpdated').textContent =
+        'עודכן: ' + fetched.toLocaleDateString('he-IL') + ' ' + fetched.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+
+      var t = d.totals;
+      document.getElementById('kpiTotal').textContent = t.total.toLocaleString();
+      document.getElementById('kpiActive').textContent = t.activeStudents.toLocaleString();
+      document.getElementById('kpiActiveSub').textContent = t.total ? Math.round(t.activeStudents / t.total * 100) + '% מהנרשמים' : '';
+      document.getElementById('kpiNon').textContent = t.nonStudents.toLocaleString();
+      document.getElementById('kpiNonSub').textContent = t.total ? Math.round(t.nonStudents / t.total * 100) + '% מהנרשמים' : '';
+      document.getElementById('kpiNewsletter').textContent = t.newsletterOptIn.toLocaleString();
+      document.getElementById('kpiNewsletterSub').textContent = t.total ? Math.round(t.newsletterOptIn / t.total * 100) + '% מהנרשמים' : '';
+
+      renderStatusChart(d.byStatus);
+      renderPathChart(d.byLearningPath);
+      renderTimelineChart(d.byDate);
+      renderUtmTable('utmSourceTable', 'utmSourceEmpty', d.byUtmSource);
+      renderUtmTable('utmCampaignTable', 'utmCampaignEmpty', d.byUtmCampaign);
+      renderRegistrations(d.registrations);
+    }
+
+    // ==================== CHARTS ====================
+    var CHART_COLORS = ['#7885FA', '#BA7A69', '#5bb98c', '#a5aefc', '#d4a090', '#5a68f5', '#e8c572', '#7ec4cf'];
+
+    function destroyChart(name) {
+      if (chartInstances[name]) { chartInstances[name].destroy(); delete chartInstances[name]; }
+    }
+
+    function renderStatusChart(byStatus) {
+      destroyChart('status');
+      var labels = Object.keys(byStatus);
+      var values = Object.values(byStatus);
+      if (!labels.length) return;
+
+      var ctx = document.getElementById('statusChart').getContext('2d');
+      chartInstances.status = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: labels.map(function(_, i) { return CHART_COLORS[i % CHART_COLORS.length]; }),
+            borderRadius: 8,
+            borderSkipped: false,
+            maxBarThickness: 48,
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { font: { family: 'GreycliffHebrew' } } },
+            y: { grid: { display: false }, ticks: { font: { family: 'GreycliffHebrew', size: 12 } } },
+          }
+        }
+      });
+    }
+
+    function renderPathChart(byPath) {
+      destroyChart('path');
+      var labels = Object.keys(byPath);
+      var values = Object.values(byPath);
+
+      if (!labels.length) {
+        document.getElementById('pathChart').style.display = 'none';
+        document.getElementById('pathEmpty').style.display = 'block';
+        return;
+      }
+      document.getElementById('pathChart').style.display = 'block';
+      document.getElementById('pathEmpty').style.display = 'none';
+
+      var ctx = document.getElementById('pathChart').getContext('2d');
+      chartInstances.path = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: values,
+            backgroundColor: CHART_COLORS.slice(0, labels.length),
+            borderWidth: 0,
+            hoverOffset: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '55%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              rtl: true,
+              labels: { font: { family: 'GreycliffHebrew', size: 12 }, padding: 16, usePointStyle: true, pointStyleWidth: 8 },
+            }
+          }
+        }
+      });
+    }
+
+    function renderTimelineChart(byDate) {
+      destroyChart('timeline');
+      var sorted = Object.entries(byDate)
+        .filter(function(e) { return e[0] !== 'unknown'; })
+        .sort(function(a, b) { return a[0].localeCompare(b[0]); });
+
+      if (!sorted.length) return;
+
+      var cumulative = 0;
+      var cumulativeData = sorted.map(function(entry) {
+        cumulative += entry[1];
+        return { x: entry[0], y: cumulative };
+      });
+
+      var ctx = document.getElementById('timelineChart').getContext('2d');
+      chartInstances.timeline = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'הרשמות מצטבר',
+              data: cumulativeData,
+              borderColor: '#7885FA',
+              backgroundColor: 'rgba(120, 133, 250, 0.08)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointRadius: 3,
+              pointBackgroundColor: '#7885FA',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointHoverRadius: 6,
+            },
+            {
+              label: 'הרשמות יומי',
+              data: sorted.map(function(e) { return { x: e[0], y: e[1] }; }),
+              borderColor: '#BA7A69',
+              backgroundColor: 'rgba(186, 122, 105, 0.08)',
+              fill: false,
+              tension: 0.35,
+              borderWidth: 2,
+              borderDash: [4, 4],
+              pointRadius: 2,
+              pointBackgroundColor: '#BA7A69',
+            },
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              rtl: true,
+              labels: { font: { family: 'GreycliffHebrew', size: 12 }, usePointStyle: true, pointStyleWidth: 8 },
+            }
+          },
+          scales: {
+            x: {
+              type: 'category',
+              grid: { display: false },
+              ticks: { font: { family: 'GreycliffHebrew', size: 11 }, maxRotation: 45 },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(42,30,18,0.04)' },
+              ticks: { font: { family: 'GreycliffHebrew' } },
+            }
+          }
+        }
+      });
+    }
+
+    // ==================== UTM TABLES ====================
+    function renderUtmTable(tableId, emptyId, data) {
+      var tbody = document.querySelector('#' + tableId + ' tbody');
+      var sorted = Object.entries(data).sort(function(a, b) { return b[1] - a[1]; });
+      // Clear previous rows
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+      if (!sorted.length) {
+        document.getElementById(tableId).style.display = 'none';
+        document.getElementById(emptyId).style.display = 'block';
+        return;
+      }
+      document.getElementById(tableId).style.display = 'table';
+      document.getElementById(emptyId).style.display = 'none';
+
+      sorted.forEach(function(entry) {
+        var tr = document.createElement('tr');
+        var tdKey = document.createElement('td');
+        tdKey.textContent = entry[0];
+        var tdVal = document.createElement('td');
+        var span = document.createElement('span');
+        span.className = 'utm-count';
+        span.textContent = entry[1];
+        tdVal.appendChild(span);
+        tr.appendChild(tdKey);
+        tr.appendChild(tdVal);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ==================== REGISTRATIONS TABLE ====================
+    function renderRegistrations(regs) {
+      var tbody = document.getElementById('regTableBody');
+      while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+
+      var sorted = regs.slice();
+      sortRegistrations(sorted, currentSort.col, currentSort.asc);
+
+      sorted.forEach(function(r, i) {
+        var isActive = ACTIVE_STATUSES.includes(r.status);
+        var tr = document.createElement('tr');
+        tr.dataset.search = [r.name, r.phone, r.email, r.status, r.learningPath, r.utmSource].join(' ').toLowerCase();
+
+        // #
+        var td0 = document.createElement('td');
+        td0.textContent = i + 1;
+        tr.appendChild(td0);
+
+        // Name
+        var td1 = document.createElement('td');
+        td1.textContent = r.name;
+        td1.title = r.name;
+        tr.appendChild(td1);
+
+        // Phone
+        var td2 = document.createElement('td');
+        td2.textContent = r.phone;
+        td2.dir = 'ltr';
+        td2.style.textAlign = 'right';
+        tr.appendChild(td2);
+
+        // Email
+        var td3 = document.createElement('td');
+        td3.textContent = r.email;
+        td3.title = r.email;
+        tr.appendChild(td3);
+
+        // Status
+        var td4 = document.createElement('td');
+        var badge = document.createElement('span');
+        badge.className = 'status-badge ' + (isActive ? 'active' : 'inactive');
+        badge.textContent = r.status;
+        td4.appendChild(badge);
+        tr.appendChild(td4);
+
+        // Learning path
+        var td5 = document.createElement('td');
+        td5.textContent = r.learningPath || '—';
+        tr.appendChild(td5);
+
+        // Newsletter
+        var td6 = document.createElement('td');
+        td6.textContent = r.newsletter ? '✅' : '—';
+        tr.appendChild(td6);
+
+        // UTM
+        var td7 = document.createElement('td');
+        var utmParts = [r.utmSource, r.utmMedium, r.utmCampaign].filter(Boolean);
+        td7.textContent = r.utmSource || '—';
+        td7.title = utmParts.join(' / ');
+        tr.appendChild(td7);
+
+        // Date
+        var td8 = document.createElement('td');
+        td8.textContent = r.date !== 'unknown' ? r.date : '—';
+        tr.appendChild(td8);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function sortRegistrations(arr, col, asc) {
+      var key = TABLE_COLUMNS[col] ? TABLE_COLUMNS[col].key : null;
+      if (!key) return;
+
+      arr.sort(function(a, b) {
+        var va = key === 'newsletter' ? (a[key] ? 1 : 0) : (a[key] || '');
+        var vb = key === 'newsletter' ? (b[key] ? 1 : 0) : (b[key] || '');
+        if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+        if (va < vb) return asc ? -1 : 1;
+        if (va > vb) return asc ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function sortTable(col) {
+      if (currentSort.col === col) {
+        currentSort.asc = !currentSort.asc;
+      } else {
+        currentSort.col = col;
+        currentSort.asc = true;
+      }
+
+      var ths = document.querySelectorAll('.reg-table th');
+      ths.forEach(function(th, i) {
+        th.classList.toggle('sorted', i === col);
+        var arrow = th.querySelector('.sort-arrow');
+        if (arrow) arrow.textContent = (i === col && !currentSort.asc) ? '▲' : '▼';
+      });
+
+      if (dashboardData) renderRegistrations(dashboardData.registrations);
+    }
+
+    function filterTable() {
+      var query = document.getElementById('searchInput').value.toLowerCase().trim();
+      var rows = document.querySelectorAll('#regTableBody tr');
+      rows.forEach(function(row) {
+        row.style.display = (!query || row.dataset.search.includes(query)) ? '' : 'none';
+      });
+    }
+
+    // ==================== EXPORT CSV ====================
+    function exportCSV() {
+      if (!dashboardData || !dashboardData.registrations.length) return;
+
+      var headers = ['שם', 'טלפון', 'אימייל', 'סטטוס', 'נתיב לימודים', 'דיוור', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'תאריך'];
+      var rows = dashboardData.registrations.map(function(r) {
+        return [r.name, r.phone, r.email, r.status, r.learningPath, r.newsletter ? 'כן' : 'לא', r.utmSource, r.utmMedium, r.utmCampaign, r.date];
+      });
+
+      var csv = '\uFEFF' + headers.join(',') + '\n';
+      rows.forEach(function(row) {
+        csv += row.map(function(v) { return '"' + (v || '').replace(/"/g, '""') + '"'; }).join(',') + '\n';
+      });
+
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'registrations-' + new Date().toISOString().slice(0, 10) + '.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ==================== AUTO-REFRESH ====================
+    var AUTO_REFRESH_SECONDS = 120; // 2 minutes
+    var countdownRemaining = AUTO_REFRESH_SECONDS;
+    var countdownInterval = null;
+
+    function startAutoRefresh() {
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownRemaining = AUTO_REFRESH_SECONDS;
+      updateCountdownDisplay();
+
+      countdownInterval = setInterval(function() {
+        countdownRemaining--;
+        if (countdownRemaining <= 0) {
+          silentRefresh();
+          countdownRemaining = AUTO_REFRESH_SECONDS;
+        }
+        updateCountdownDisplay();
+      }, 1000);
+    }
+
+    function updateCountdownDisplay() {
+      var el = document.getElementById('countdownText');
+      if (!el) return;
+      var min = Math.floor(countdownRemaining / 60);
+      var sec = countdownRemaining % 60;
+      el.textContent = 'רענון בעוד ' + (min > 0 ? min + ':' : '0:') + (sec < 10 ? '0' : '') + sec;
+    }
+
+    async function silentRefresh() {
+      try {
+        var res = await fetch('/.netlify/functions/dashboard-data', {
+          headers: { 'X-Dashboard-Password': getPassword() }
+        });
+        if (res.status === 401) { sessionStorage.removeItem('dash_password'); location.reload(); return; }
+        if (!res.ok) return;
+        dashboardData = await res.json();
+        renderDashboard();
+      } catch (_) {}
+    }
+
+    // Hook into renderDashboard to start/reset timer
+    var _origRender = renderDashboard;
+    renderDashboard = function() {
+      _origRender();
+      startAutoRefresh();
+    };
+  </script>
+</body>
+</html>
