@@ -433,7 +433,7 @@
     /* ==================== RESPONSIVE ==================== */
     @media (max-width: 900px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .charts-grid { grid-template-columns: 1fr; }
+      .charts-grid, .charts-grid[style] { grid-template-columns: 1fr !important; }
     }
     @media (max-width: 600px) {
       .kpi-grid { grid-template-columns: 1fr; }
@@ -551,7 +551,7 @@
       </div>
 
       <!-- UTM Tables -->
-      <div class="charts-grid">
+      <div class="charts-grid" style="grid-template-columns: 1fr 1fr 1fr;">
         <div class="chart-card animate-in delay-6">
           <h3><span class="icon">🔗</span> פילוח UTM — Source</h3>
           <div class="data-table-wrap">
@@ -560,6 +560,16 @@
               <tbody></tbody>
             </table>
             <div class="empty-state" id="utmSourceEmpty" style="display:none;">אין נתוני UTM</div>
+          </div>
+        </div>
+        <div class="chart-card animate-in delay-6">
+          <h3><span class="icon">📡</span> פילוח UTM — Medium</h3>
+          <div class="data-table-wrap">
+            <table class="data-table" id="utmMediumTable">
+              <thead><tr><th>Medium</th><th>נרשמים</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <div class="empty-state" id="utmMediumEmpty" style="display:none;">אין נתוני Medium</div>
           </div>
         </div>
         <div class="chart-card animate-in delay-6">
@@ -728,6 +738,7 @@
       renderPathChart(d.byLearningPath);
       renderTimelineChart(d.byDate);
       renderUtmTable('utmSourceTable', 'utmSourceEmpty', d.byUtmSource);
+      renderUtmTable('utmMediumTable', 'utmMediumEmpty', d.byUtmMedium);
       renderUtmTable('utmCampaignTable', 'utmCampaignEmpty', d.byUtmCampaign);
       renderRegistrations(d.registrations);
     }
